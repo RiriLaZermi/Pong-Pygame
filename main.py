@@ -106,10 +106,16 @@ def ScorePrint(screen, score_p1, score_p2):
     rect= img.get_rect(center=(SCREEN_WIDTH/2,50))
     screen.blit(img,rect)
 
+def VictoryScreen(screen,player_number):
+    
+    font= pygame.font.SysFont(None,200)
+    img = font.render("PLAYER " + str(player_number) +" WIN !!!",True, (255,255,255,50))
+    rect= img.get_rect(center=(SCREEN_WIDTH/2,SCREEN_HEIGHT/2))
+    screen.blit(img,rect)
         
 def main():
     global score_p1,score_p2
-
+    global gameFinish
     bar_speed= 10
     
     pygame.init()
@@ -125,8 +131,9 @@ def main():
     
 
     running = True
-
+    
     while True:
+        screen.fill(COLOR_BG)
         for event in pygame.event.get():
             if event.type==pygame.QUIT:
                 pygame.quit()
@@ -135,7 +142,7 @@ def main():
                  if event.key==pygame.K_SPACE:
                       running= not running
             
-        if running:   
+        if (running and (not gameFinish)):
             keys=pygame.key.get_pressed()
             if keys[pygame.K_UP]:
                     bar2_update(bar_speed,bar2,up=1,down=0)
@@ -146,24 +153,42 @@ def main():
             if keys[pygame.K_LSHIFT]:
                     bar1_update(bar_speed,bar1,up=1,down=0)
             
-            screen.fill(COLOR_BG)
+            
             ball_xspeed, ball_yspeed=pong_update(screen,bar1,bar2,ball,ball_xspeed,ball_yspeed)    
-            ScorePrint(screen, score_p1, score_p2)
-            pygame.display.update()
-            clock.tick(60)
-
+                 
+        
+       
         #finish condition
         if ball.center[0]<0:
              score_p2 += 1
+             if(score_p2==2):
+                VictoryScreen(screen,2)
+                ScorePrint(screen, score_p1, score_p2)
+                pygame.display.update()
+                gameFinish = True
              break
         elif ball.center[0]>SCREEN_WIDTH:
              score_p1 +=1
+             if(score_p1==2):
+                VictoryScreen(screen,1)
+                ScorePrint(screen, score_p1, score_p2)
+                pygame.display.update()
+                gameFinish=True
              break
-            
+        if (gameFinish):
+            if(score_p2==2):
+                VictoryScreen(screen,2)
+            else :
+                VictoryScreen(screen,1)
+        ScorePrint(screen, score_p1, score_p2)
+        pygame.display.update()
+        clock.tick(60)
 
 if __name__=="__main__":
     score_p1=0
     score_p2=0
+    gameFinish = False
     while True:
         pygame.time.wait(1000)
         main()
+        
